@@ -124,8 +124,8 @@ buildIOS()
 echo "Cleaning up"
 rm -rf include/openssl/* lib/*
 rm -rf ${TEMP_BASE_DIR}
-mkdir -p lib/iOS
-mkdir -p lib/Mac
+mkdir -p lib/ios
+mkdir -p lib/mac
 mkdir -p include/openssl/
 mkdir -p ${TEMP_BASE_DIR}
 
@@ -135,11 +135,11 @@ echo "Building Mac libraries"
 lipo \
 	"${TEMP_BASE_DIR}/i386/lib/libcrypto.a" \
 	"${TEMP_BASE_DIR}/x86_64/lib/libcrypto.a" \
-	-create -output lib/Mac/libcrypto.a
+	-create -output lib/mac/libcrypto.a
 lipo \
 	"${TEMP_BASE_DIR}/i386/lib/libssl.a" \
 	"${TEMP_BASE_DIR}/x86_64/lib/libssl.a" \
-	-create -output lib/Mac/libssl.a
+	-create -output lib/mac/libssl.a
 
 buildIOS "armv7"
 buildIOS "arm64"
@@ -151,13 +151,13 @@ lipo \
 	"${TEMP_BASE_DIR}/iOS-arm64/lib/libcrypto.a" \
 	"${TEMP_BASE_DIR}/iOS-i386/lib/libcrypto.a" \
 	"${TEMP_BASE_DIR}/iOS-x86_64/lib/libcrypto.a" \
-	-create -output lib/iOS/libcrypto.a
+	-create -output lib/ios/libcrypto.a
 lipo \
 	"${TEMP_BASE_DIR}/iOS-armv7/lib/libssl.a" \
 	"${TEMP_BASE_DIR}/iOS-arm64/lib/libssl.a" \
 	"${TEMP_BASE_DIR}/iOS-i386/lib/libssl.a" \
 	"${TEMP_BASE_DIR}/iOS-x86_64/lib/libssl.a" \
-	-create -output lib/iOS/libssl.a
+	-create -output lib/ios/libssl.a
 
 echo "Copying headers"
 cp ${TEMP_BASE_DIR}/i386/include/openssl/* include/openssl/
