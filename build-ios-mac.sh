@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# This script builds the iOS and Mac OpenSSL libraries (with Bitcode enabled?)
+# This script builds the iOS and Mac OpenSSL libraries with Bitcode enabled
 
 # Credits:
 # https://gist.github.com/dgventura/812a0e02bdccf08f2866fb08bb39f4be
 
-# Updated to work with Xcode 8.3.3 and iOS 10.10.  Currently disables bitcode due to conflicting linker flags.
+# Updated to work with Xcode 8.3.3 and iOS 10.10.
 
 set -e
 
@@ -18,7 +18,7 @@ IOS_SDK_VERSION=$(xcodebuild -version -sdk iphoneos | grep SDKVersion | cut -f2 
 ################################################
 # 		 Minimum iOS deployment target version
 ################################################
-MIN_IOS_VERSION="9.3"
+MIN_IOS_VERSION="9.0"
 
 ################################################
 # 		 Minimum OS X deployment target version
@@ -95,15 +95,10 @@ buildIOS()
 	export CROSS_TOP="${XCODE_DEV_PATH}/Platforms/${PLATFORM}.platform/Developer"
 	export CROSS_SDK="${PLATFORM}${IOS_SDK_VERSION}.sdk"
 	export BUILD_TOOLS="${XCODE_DEV_PATH}"
-	# export CC="${BUILD_TOOLS}/usr/bin/gcc -fembed-bitcode -mios-version-min=${MIN_IOS_VERSION} -arch ${ARCH}"
-	export CC="${BUILD_TOOLS}/usr/bin/gcc -mios-version-min=${MIN_IOS_VERSION} -arch ${ARCH}"
+	export CC="${BUILD_TOOLS}/usr/bin/gcc -fembed-bitcode -mios-version-min=${MIN_IOS_VERSION} -arch ${ARCH}"
 	
 	echo "Configure"
-	if [[ "${ARCH}" == "x86_64" ]]; then
-		./Configure darwin64-x86_64-cc --openssldir="${TEMP_BASE_DIR}/iOS-${ARCH}" --prefix="${TEMP_BASE_DIR}/iOS-${ARCH}" &> "${TEMP_BASE_DIR}/iOS-${ARCH}.log"
-	else
-		./Configure iphoneos-cross --openssldir="${TEMP_BASE_DIR}/iOS-${ARCH}" --prefix="${TEMP_BASE_DIR}/iOS-${ARCH}" &> "${TEMP_BASE_DIR}/iOS-${ARCH}.log"
-	fi
+	./Configure iphoneos-cross -no-engine --openssldir="${TEMP_BASE_DIR}/iOS-${ARCH}" --prefix="${TEMP_BASE_DIR}/iOS-${ARCH}" &> "${TEMP_BASE_DIR}/iOS-${ARCH}.log"
 	sed -ie "s!^CFLAG=!CFLAG=-isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -mios-version-min=${MIN_IOS_VERSION} !" "Makefile"
 	sed -ie 's/\/usr\/bin\/gcc/\/Toolchains\/XcodeDefault.xctoolchain\/usr\/bin\/clang/g' Makefile
 	
@@ -141,10 +136,11 @@ lipo \
 	"${TEMP_BASE_DIR}/x86_64/lib/libssl.a" \
 	-create -output lib/mac/libssl.a
 
-buildIOS "armv7"
-buildIOS "arm64"
+
 buildIOS "x86_64"
 buildIOS "i386"
+buildIOS "armv7"
+buildIOS "arm64"
 echo "Building iOS libraries"
 lipo \
 	"${TEMP_BASE_DIR}/iOS-armv7/lib/libcrypto.a" \
