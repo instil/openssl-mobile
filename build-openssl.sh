@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Simple script to build OpenSSL for iOS (an eventually Android, or optioanlyl pull the binaries for the latest release from GitHub.
+# Simple script to build OpenSSL for iOS (an eventually Android, or optionally pull the binaries for the latest release from GitHub.
 
 REPO_ID="Pkshields/openssl-mobile"
 TEMP_OUTPUT_DIR="/tmp/openssl-mobile"
@@ -28,4 +28,5 @@ if [[ $* == *--no-build* ]]; then
 	echo "Completed"
 else
 	./build-ios-mac.sh
+	./build-android.sh
 fi
