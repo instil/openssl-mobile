@@ -2,7 +2,7 @@
 
 # Simple script to build OpenSSL for iOS (an eventually Android, or optionally pull the binaries for the latest release from GitHub.
 
-REPO_ID="Pkshields/openssl-mobile"
+REPO_ID="instil/openssl-mobile"
 TEMP_OUTPUT_DIR="/tmp/openssl-mobile"
 TEMP_ZIP_FILE="binary.zip"
 
