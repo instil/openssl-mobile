@@ -95,10 +95,10 @@ buildIOS()
 	export CROSS_TOP="${XCODE_DEV_PATH}/Platforms/${PLATFORM}.platform/Developer"
 	export CROSS_SDK="${PLATFORM}${IOS_SDK_VERSION}.sdk"
 	export BUILD_TOOLS="${XCODE_DEV_PATH}"
-	export CC="${BUILD_TOOLS}/usr/bin/gcc -fembed-bitcode -mios-version-min=${MIN_IOS_VERSION} -arch ${ARCH}"
+	export CC="${BUILD_TOOLS}/usr/bin/gcc -fembed-bitcode -mios-version-min=${MIN_IOS_VERSION} -mios-simulator-version-min=${MIN_IOS_VERSION} -arch ${ARCH}"
 	
 	echo "Configure"
-	./Configure iphoneos-cross -no-engine --openssldir="${TEMP_BASE_DIR}/iOS-${ARCH}" --prefix="${TEMP_BASE_DIR}/iOS-${ARCH}" &> "${TEMP_BASE_DIR}/iOS-${ARCH}.log"
+	./Configure iphoneos-cross -no-engine -no-async --openssldir="${TEMP_BASE_DIR}/iOS-${ARCH}" --prefix="${TEMP_BASE_DIR}/iOS-${ARCH}" &> "${TEMP_BASE_DIR}/iOS-${ARCH}.log"
 	sed -ie "s!^CFLAG=!CFLAG=-isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -mios-version-min=${MIN_IOS_VERSION} !" "Makefile"
 	sed -ie 's/\/usr\/bin\/gcc/\/Toolchains\/XcodeDefault.xctoolchain\/usr\/bin\/clang/g' Makefile
 	
@@ -124,18 +124,19 @@ mkdir -p lib/mac
 mkdir -p include/openssl/
 mkdir -p ${TEMP_BASE_DIR}
 
-buildMac "i386"
+#buildMac "i386"
 buildMac "x86_64"
 echo "Building Mac libraries"
-lipo \
-	"${TEMP_BASE_DIR}/i386/lib/libcrypto.a" \
-	"${TEMP_BASE_DIR}/x86_64/lib/libcrypto.a" \
-	-create -output lib/mac/libcrypto.a
-lipo \
-	"${TEMP_BASE_DIR}/i386/lib/libssl.a" \
-	"${TEMP_BASE_DIR}/x86_64/lib/libssl.a" \
-	-create -output lib/mac/libssl.a
-
+#lipo \
+#	"${TEMP_BASE_DIR}/i386/lib/libcrypto.a" \
+#	"${TEMP_BASE_DIR}/x86_64/lib/libcrypto.a" \
+#	-create -output lib/mac/libcrypto.a
+#lipo \
+#	"${TEMP_BASE_DIR}/i386/lib/libssl.a" \
+#	"${TEMP_BASE_DIR}/x86_64/lib/libssl.a" \
+#	-create -output lib/mac/libssl.a
+cp "${TEMP_BASE_DIR}/x86_64/lib/libcrypto.a" lib/mac/libcrypto.a
+cp "${TEMP_BASE_DIR}/x86_64/lib/libssl.a" lib/mac/libssl.a 
 
 buildIOS "x86_64"
 buildIOS "i386"
@@ -156,7 +157,7 @@ lipo \
 	-create -output lib/ios/libssl.a
 
 echo "Copying headers"
-cp ${TEMP_BASE_DIR}/i386/include/openssl/* include/openssl/
+cp ${TEMP_BASE_DIR}/x86_64/include/openssl/* include/openssl/
 
 echo "Cleaning up"
 rm -rf ${TEMP_BASE_DIR}/*
