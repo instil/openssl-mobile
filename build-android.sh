@@ -39,7 +39,7 @@ do
     echo "Building OpenSSL for ${TARGET_PLATFORM}"
     case "${TARGET_PLATFORM}" in
         armeabi)
-            architecture=android-armeabi
+            architecture=android-arm
             ;;
         armeabi-v7a)
             architecture=android-arm
