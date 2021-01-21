@@ -28,7 +28,6 @@ esac
 
 ANDROID_API=21
 CC=clang
-echo $toolchains_path/bin
 PATH=$toolchains_path/bin:$PATH
 
 ANDROID_LIB_ROOT=../lib/android
@@ -78,7 +77,7 @@ do
         exit 1
     fi
 
-    OUTPUT_INCLUDE=$SCRIPTPATH/output/include
+    OUTPUT_INCLUDE=$SCRIPTPATH/include
     OUTPUT_LIB=${ANDROID_LIB_ROOT}/${TARGET_PLATFORM}
     mkdir -p $OUTPUT_INCLUDE
     mkdir -p $OUTPUT_LIB
