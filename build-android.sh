@@ -12,19 +12,9 @@ OPENSSL_DIR=$SCRIPTPATH/openssl
 cd "${OPENSSL_DIR}" || exit 1
 
 # Find the toolchain for your build machine
-HOST_INFO=`uname -a`
-case ${HOST_INFO} in
-    Darwin*)
-        toolchains_path=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/darwin-x86_64
-        ;;
-    Linux*)
-        toolchains_path=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64
-        ;;
-    *)
-        echo "Toolchain unknown for host system"
-        exit 1
-        ;;
-esac
+OS_TYPE=$(uname -s | tr A-Z a-z)
+ARCH=$(uname -m)
+toolchains_path=/toolchains/llvm/prebuilt/$OS_TYPE-$ARCH
 
 ANDROID_API=21
 CC=clang
