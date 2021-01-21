@@ -60,6 +60,7 @@ do
 
     mkdir -p "${ANDROID_LIB_ROOT}/${TARGET_PLATFORM}"
 
+    echo "Configure"
     ./Configure ${architecture} -D__ANDROID_API__=$ANDROID_API
 
     if [ $? -ne 0 ]; then
@@ -67,7 +68,9 @@ do
         exit 1
     fi
 
+    echo "make clean"
     make clean
+    echo "make"
     make
 
     if [ $? -ne 0 ]; then
@@ -84,4 +87,6 @@ do
     cp libcrypto.a $OUTPUT_LIB
     cp libssl.so $OUTPUT_LIB
     cp libssl.a $OUTPUT_LIB
+
+    echo "Done Building OpenSSL for ${architecture}"
 done
