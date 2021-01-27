@@ -14,7 +14,7 @@ cd "${OPENSSL_DIR}" || exit 1
 # Find the toolchain for your build machine
 OS_TYPE=$(uname -s | tr A-Z a-z)
 ARCH=$(uname -m)
-toolchains_path=/toolchains/llvm/prebuilt/$OS_TYPE-$ARCH
+toolchains_path=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/$OS_TYPE-$ARCH
 
 ANDROID_API=21
 CC=clang

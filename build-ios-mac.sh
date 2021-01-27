@@ -18,7 +18,7 @@ IOS_SDK_VERSION=$(xcodebuild -version -sdk iphoneos | grep SDKVersion | cut -f2 
 ################################################
 # 		 Minimum iOS deployment target version
 ################################################
-MIN_IOS_VERSION="9.0"
+MIN_IOS_VERSION="10.0"
 
 ################################################
 # 		 Minimum OS X deployment target version
@@ -99,7 +99,7 @@ buildIOS()
 	
 	echo "Configure"
 	./Configure iphoneos-cross -no-engine -no-async --openssldir="${TEMP_BASE_DIR}/iOS-${ARCH}" --prefix="${TEMP_BASE_DIR}/iOS-${ARCH}" &> "${TEMP_BASE_DIR}/iOS-${ARCH}.log"
-	sed -ie "s!^CFLAG=!CFLAG=-isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -mios-version-min=${MIN_IOS_VERSION} !" "Makefile"
+	sed -ie "s!^CFLAGS=!CFLAGS=-isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -mios-version-min=${MIN_IOS_VERSION} !" "Makefile"
 	sed -ie 's/\/usr\/bin\/gcc/\/Toolchains\/XcodeDefault.xctoolchain\/usr\/bin\/clang/g' Makefile
 	
 	echo "make"
