@@ -6,7 +6,7 @@ if [ ! ${ANDROID_NDK_HOME} ]; then
 fi
 
 # Set directory
-SCRIPTPATH=`realpath .`
+SCRIPTPATH=`pwd`
 OPENSSL_DIR=$SCRIPTPATH/openssl
 
 cd "${OPENSSL_DIR}" || exit 1
@@ -50,7 +50,14 @@ do
     mkdir -p "${ANDROID_LIB_ROOT}/${TARGET_PLATFORM}"
 
     echo "Configure"
-    ./Configure ${architecture} -D__ANDROID_API__=$ANDROID_API
+    ./Configure ${architecture} -D__ANDROID_API__=$ANDROID_API \
+        no-shared no-idea no-camellia \
+        no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 \
+        no-md4 no-ecdh no-sock no-ssl2 no-ssl3 \
+        no-dsa no-dh no-ec no-ecdsa no-tls1 \
+        no-rfc3779 no-whirlpool no-srp \
+        no-mdc2 no-ecdh no-engine \
+        no-srtp -fPIC
 
     if [ $? -ne 0 ]; then
         echo "Error executing:./Configure ${architecture}"
