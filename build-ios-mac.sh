@@ -60,15 +60,13 @@ buildMac()
 buildIOS()
 {
 	ARCH=$1
-	LOG_FILE="${TEMP_BASE_DIR}/iOS-${ARCH}.log"
+	PLATFORM=$2
+	LOG_FILE="${TEMP_BASE_DIR}/iOS-${ARCH}-${PLATFORM}.log"
 
 	pushd . > /dev/null
 	cd "openssl"
 
-	if [[ "${ARCH}" == "i386" || "${ARCH}" == "x86_64" ]]; then
-		PLATFORM="iPhoneSimulator"
-	else
-		PLATFORM="iPhoneOS"
+	if [[ "${PLATFORM}" == "iPhoneOS" ]]; then
 		sed -ie "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!" "crypto/ui/ui_openssl.c"
 	fi
 
@@ -82,9 +80,12 @@ buildIOS()
 	export CC="${BUILD_TOOLS}/usr/bin/gcc -fembed-bitcode -mios-version-min=${MIN_IOS_VERSION} -mios-simulator-version-min=${MIN_IOS_VERSION} -arch ${ARCH}"
 
 	echo "Configure"
-	./Configure iphoneos-cross -no-engine -no-async --openssldir="${TEMP_BASE_DIR}/iOS-${ARCH}" --prefix="${TEMP_BASE_DIR}/iOS-${ARCH}" &> $LOG_FILE
-	sed -ie "s!^CFLAGS=!CFLAGS=-isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -mios-version-min=${MIN_IOS_VERSION} !" "Makefile"
-	sed -ie 's/\/usr\/bin\/gcc/\/Toolchains\/XcodeDefault.xctoolchain\/usr\/bin\/clang/g' Makefile
+	./Configure iphoneos-cross -no-engine -no-async --openssldir="${TEMP_BASE_DIR}/iOS-${ARCH}-${PLATFORM}" --prefix="${TEMP_BASE_DIR}/iOS-${ARCH}-${PLATFORM}" &> $LOG_FILE
+
+	if [[ "${PLATFORM}" == "iPhoneOS" ]]; then
+		sed -ie "s!^CFLAGS=!CFLAGS=-isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -mios-version-min=${MIN_IOS_VERSION} !" "Makefile"
+		sed -ie 's/\/usr\/bin\/gcc/\/Toolchains\/XcodeDefault.xctoolchain\/usr\/bin\/clang/g' Makefile
+	fi
 
 	echo "make"
 	make >> $LOG_FILE 2>&1
@@ -115,22 +116,46 @@ cp "${TEMP_BASE_DIR}/x86_64/lib/libcrypto.a" lib/mac/libcrypto.a
 cp "${TEMP_BASE_DIR}/x86_64/lib/libssl.a" lib/mac/libssl.a
 
 echo "Building iOS libraries"
-buildIOS "x86_64"
-buildIOS "i386"
-buildIOS "armv7"
-buildIOS "arm64"
+buildIOS "x86_64" "iPhoneSimulator"
+buildIOS "i386" "iPhoneSimulator"
+buildIOS "arm64" "iPhoneSimulator"
+buildIOS "armv7" "iPhoneOS"
+buildIOS "arm64" "iPhoneOS"
+
+mkdir ${TEMP_BASE_DIR}/iphoneos
+mkdir ${TEMP_BASE_DIR}/iphonesimulator
+
 lipo \
-	"${TEMP_BASE_DIR}/iOS-armv7/lib/libcrypto.a" \
-	"${TEMP_BASE_DIR}/iOS-arm64/lib/libcrypto.a" \
-	"${TEMP_BASE_DIR}/iOS-i386/lib/libcrypto.a" \
-	"${TEMP_BASE_DIR}/iOS-x86_64/lib/libcrypto.a" \
-	-create -output lib/ios/libcrypto.a
+ 	"${TEMP_BASE_DIR}/iOS-armv7-iPhoneOS/lib/libcrypto.a" \
+ 	"${TEMP_BASE_DIR}/iOS-arm64-iPhoneOS/lib/libcrypto.a" \
+ 	-create -output ${TEMP_BASE_DIR}/iphoneos/libcrypto.a
+
 lipo \
-	"${TEMP_BASE_DIR}/iOS-armv7/lib/libssl.a" \
-	"${TEMP_BASE_DIR}/iOS-arm64/lib/libssl.a" \
-	"${TEMP_BASE_DIR}/iOS-i386/lib/libssl.a" \
-	"${TEMP_BASE_DIR}/iOS-x86_64/lib/libssl.a" \
-	-create -output lib/ios/libssl.a
+ 	"/tmp/openssl/iOS-arm64-iPhoneSimulator/lib/libcrypto.a" \
+ 	"/tmp/openssl/iOS-i386-iPhoneSimulator/lib/libcrypto.a" \
+ 	"/tmp/openssl/iOS-x86_64-iPhoneSimulator/lib/libcrypto.a" \
+ 	-create -output ${TEMP_BASE_DIR}/iphonesimulator/libcrypto.a
+
+xcodebuild -create-xcframework \
+	-library ${TEMP_BASE_DIR}/iphonesimulator/libcrypto.a \
+	-library ${TEMP_BASE_DIR}/iphonesimulator/libcrypto.a \
+	-output lib/ios/libcrypto.xcframework
+
+lipo \
+ 	"/tmp/openssl/iOS-armv7-iPhoneOS/lib/libssl.a" \
+ 	"/tmp/openssl/iOS-arm64-iPhoneOS/lib/libssl.a" \
+ 	-create -output ${TEMP_BASE_DIR}/iphoneos/libssl.a
+
+lipo \
+ 	"/tmp/openssl/iOS-arm64-iPhoneSimulator/lib/libssl.a" \
+ 	"/tmp/openssl/iOS-i386-iPhoneSimulator/lib/libssl.a" \
+ 	"/tmp/openssl/iOS-x86_64-iPhoneSimulator/lib/libssl.a" \
+ 	-create -output ${TEMP_BASE_DIR}/iphonesimulator/libssl.a
+
+xcodebuild -create-xcframework \
+	-library /Users/paulshields/Projects/openssl-mobile/tmp/iphonesimulator/libssl.a \
+	-library /Users/paulshields/Projects/openssl-mobile/tmp/iphone/libssl.a \
+	-output lib/ios/libssl.xcframework
 
 echo "Copying headers"
 cp ${TEMP_BASE_DIR}/x86_64/include/openssl/* include/openssl/
