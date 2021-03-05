@@ -153,8 +153,8 @@ lipo \
  	-create -output ${TEMP_BASE_DIR}/iphonesimulator/libssl.a
 
 xcodebuild -create-xcframework \
-	-library /Users/paulshields/Projects/openssl-mobile/tmp/iphonesimulator/libssl.a \
-	-library /Users/paulshields/Projects/openssl-mobile/tmp/iphone/libssl.a \
+	-library ${TEMP_BASE_DIR}/iphonesimulator/libssl.a \
+	-library ${TEMP_BASE_DIR}/iphoneos/libssl.a \
 	-output lib/ios/libssl.xcframework
 
 echo "Copying headers"
