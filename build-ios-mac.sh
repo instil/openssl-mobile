@@ -32,16 +32,17 @@ buildMac()
 	echo "Start Building OpenSSL for ${ARCH}"
 	echo ">> Logs available at ${LOG_FILE}"
 
-	TARGET="darwin-i386-cc"
-	if [[ $ARCH == "x86_64" ]]; then
-		TARGET="darwin64-x86_64-cc"
-	fi
+	TARGET="darwin64-${ARCH}-cc"
 
 	export CC="${BUILD_TOOLS}/usr/bin/clang -mmacosx-version-min=${MIN_OSX_VERSION}"
 
 	pushd . > /dev/null
 
 	cd "openssl"
+
+	echo "make clean"
+	make clean >> $LOG_FILE 2>&1
+
 	echo "Configure"
 	./Configure ${TARGET} --openssldir="${TEMP_BASE_DIR}/${ARCH}" --prefix="${TEMP_BASE_DIR}/${ARCH}" &> $LOG_FILE
 	make >> $LOG_FILE 2>&1
@@ -77,7 +78,7 @@ buildIOS()
 	export CROSS_TOP="${XCODE_DEV_PATH}/Platforms/${PLATFORM}.platform/Developer"
 	export CROSS_SDK="${PLATFORM}${IOS_SDK_VERSION}.sdk"
 	export BUILD_TOOLS="${XCODE_DEV_PATH}"
-	export CC="${BUILD_TOOLS}/usr/bin/gcc -fembed-bitcode -mios-version-min=${MIN_IOS_VERSION} -mios-simulator-version-min=${MIN_IOS_VERSION} -arch ${ARCH}"
+	export CC="${BUILD_TOOLS}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -arch ${ARCH} -fembed-bitcode"
 
 	echo "Configure"
 	./Configure iphoneos-cross -no-engine -no-async --openssldir="${TEMP_BASE_DIR}/iOS-${ARCH}-${PLATFORM}" --prefix="${TEMP_BASE_DIR}/iOS-${ARCH}-${PLATFORM}" &> $LOG_FILE
@@ -112,8 +113,15 @@ mkdir -p ${TEMP_BASE_DIR}
 
 echo "Building Mac libraries"
 buildMac "x86_64"
-cp "${TEMP_BASE_DIR}/x86_64/lib/libcrypto.a" lib/mac/libcrypto.a
-cp "${TEMP_BASE_DIR}/x86_64/lib/libssl.a" lib/mac/libssl.a
+buildMac "arm64"
+lipo \
+ 	"${TEMP_BASE_DIR}/x86_64/lib/libcrypto.a" \
+ 	"${TEMP_BASE_DIR}/arm64/lib/libcrypto.a" \
+ 	-create -output lib/mac/libcrypto.a
+lipo \
+ 	"${TEMP_BASE_DIR}/x86_64/lib/libssl.a" \
+ 	"${TEMP_BASE_DIR}/arm64/lib/libssl.a" \
+ 	-create -output lib/mac/libssl.a
 
 echo "Building iOS libraries"
 buildIOS "x86_64" "iPhoneSimulator"
@@ -138,7 +146,7 @@ lipo \
 
 xcodebuild -create-xcframework \
 	-library ${TEMP_BASE_DIR}/iphonesimulator/libcrypto.a \
-	-library ${TEMP_BASE_DIR}/iphonesimulator/libcrypto.a \
+	-library ${TEMP_BASE_DIR}/iphoneos/libcrypto.a \
 	-output lib/ios/libcrypto.xcframework
 
 lipo \
