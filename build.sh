@@ -30,9 +30,10 @@ buildiOS() {
 }
 
 buildAndroid() {
-  scripts/build-library.sh android-armv8 android/arm64_v8a
-  scripts/build-library.sh android-armv7 android/armeabi
-  scripts/build-library.sh android-x86 android/x86_64
+  scripts/build-library.sh android-armv8 android/arm64-v8a
+  scripts/build-library.sh android-armv7 android/armeabi-v7a
+  scripts/build-library.sh android-x86_64 android/x86_64
+  scripts/build-library.sh android-x86 android/x86
 }
 
 buildMacOS() {
