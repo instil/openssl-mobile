@@ -1,0 +1,16 @@
+# This is based on the Cloudbees JNLP slave
+# https://github.com/cloudbees/jnlp-slave-with-java-build-tools-dockerfile/blob/master/Dockerfile
+
+FROM ubuntu:20.04
+MAINTAINER Instil <team@instil.co>
+
+ENV TZ Europe/London
+
+RUN apt update && \
+    apt -y upgrade
+
+RUN apt -y install python3-pip gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
+
+RUN pip install conan
+
+COPY . openssl-mobile
