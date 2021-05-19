@@ -8,8 +8,6 @@ getReleaseDownloadUrl() {
     RELEASE="tags/$1"
   fi
 
-  echo "https://api.github.com/repos/$REPO_ID/releases/$RELEASE"
-
   curl --silent "https://api.github.com/repos/$REPO_ID/releases/$RELEASE" |
     grep '"browser_download_url":' |
     sed -E 's/.*"([^"]+)".*/\1/'
