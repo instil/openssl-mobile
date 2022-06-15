@@ -61,7 +61,7 @@ buildLinuxDockerImage() {
 buildLinuxLibraries() {
   mkdir -p lib/$2
   docker run --name openssl openssl /openssl-mobile/scripts/build-library.sh $1 $2
-  docker cp openssl:/openssl-mobile/lib/$2 lib/$2
+  docker cp openssl:/openssl-mobile/lib/$2/. lib/$2
   docker rm openssl
 }
 
