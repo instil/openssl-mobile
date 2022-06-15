@@ -9,4 +9,4 @@ compiler.libcxx=libstdc++11
 compiler.version=9
 
 [build_requires]
-*: android-ndk/r22
+*: android-ndk/r24
