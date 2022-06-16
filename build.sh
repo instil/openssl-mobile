@@ -39,6 +39,13 @@ buildAndroid() {
 buildMacOS() {
   scripts/build-library.sh macos-armv8 macos/armv8
   scripts/build-library.sh macos-x86 macos/x86
+
+  lipo \
+    lib/macos/armv8/libcrypto.a \
+    lib/macos/x86/libcrypto.a \
+    -create -output lib/macos/libcrypto.a
+
+  rm -rf lib/macos/armv8 lib/macos/x86
 }
 
 buildLinux() {
@@ -54,7 +61,7 @@ buildLinuxDockerImage() {
 buildLinuxLibraries() {
   mkdir -p lib/$2
   docker run --name openssl openssl /openssl-mobile/scripts/build-library.sh $1 $2
-  docker cp openssl:/openssl-mobile/lib/$2 lib/$2
+  docker cp openssl:/openssl-mobile/lib/$2/. lib/$2
   docker rm openssl
 }
 
