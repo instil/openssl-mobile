@@ -8,7 +8,7 @@ getReleaseDownloadUrl() {
     RELEASE="tags/$1"
   fi
 
-  curl --silent "https://api.github.com/repos/$REPO_ID/releases/$RELEASE" |
+  curl -v "https://api.github.com/repos/$REPO_ID/releases/$RELEASE" |
     grep '"browser_download_url":' |
     sed -E 's/.*"([^"]+)".*/\1/'
 }
@@ -27,5 +27,5 @@ DOWNLOAD_URL=`getReleaseDownloadUrl $GIT_TAG`
 rm -rf include/*
 rm -rf lib/*
 
-wget "${DOWNLOAD_URL}" -O "/tmp/release.zip"
+wget -v "${DOWNLOAD_URL}" -O "/tmp/release.zip"
 unzip "/tmp/release.zip" -d .
