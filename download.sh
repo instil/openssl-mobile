@@ -10,11 +10,11 @@ getReleaseDownloadUrl() {
 
   if [ -n "$TOKEN" ]
   then
-    curl -v --header "authorization: Bearer $TOKEN" "https://api.github.com/repos/$REPO_ID/releases/$RELEASE" |
+    curl --silent --header "authorization: Bearer $TOKEN" "https://api.github.com/repos/$REPO_ID/releases/$RELEASE" |
         grep '"browser_download_url":' |
         sed -E 's/.*"([^"]+)".*/\1/'
   else
-    curl -v "https://api.github.com/repos/$REPO_ID/releases/$RELEASE" |
+    curl --silent "https://api.github.com/repos/$REPO_ID/releases/$RELEASE" |
         grep '"browser_download_url":' |
         sed -E 's/.*"([^"]+)".*/\1/'
   fi
@@ -35,6 +35,6 @@ DOWNLOAD_URL=`getReleaseDownloadUrl $GIT_TAG`
 rm -rf include/*
 rm -rf lib/*
 
-wget -v "${DOWNLOAD_URL}" -O "/tmp/release.zip"
+wget --silent "${DOWNLOAD_URL}" -O "/tmp/release.zip"
 unzip "/tmp/release.zip" -d .
 
