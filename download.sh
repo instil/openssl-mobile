@@ -35,6 +35,6 @@ DOWNLOAD_URL=`getReleaseDownloadUrl $GIT_TAG`
 rm -rf include/*
 rm -rf lib/*
 
-wget --silent "${DOWNLOAD_URL}" -O "/tmp/release.zip"
+wget "${DOWNLOAD_URL}" -O "/tmp/release.zip"
 unzip "/tmp/release.zip" -d .
 
