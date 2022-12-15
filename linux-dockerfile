@@ -9,7 +9,7 @@ ENV TZ Europe/London
 RUN apt update && \
     apt -y upgrade
 
-RUN apt -y install python3-pip gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
+RUN apt -y install python3-pip gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu gcc-x86-64-linux-gnu binutils-x86-64-linux-gnu
 
 RUN pip install conan
 
