@@ -4,7 +4,7 @@ include(default)
 os=Linux
 arch=armv8
 compiler=gcc
-compiler.version=9.2
+compiler.version=11.3
 compiler.libcxx=libstdc++
 
 [env]
