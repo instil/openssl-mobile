@@ -45,6 +45,11 @@ buildMacOS() {
     lib/macos/x86/libcrypto.a \
     -create -output lib/macos/libcrypto.a
 
+  lipo \
+    lib/macos/armv8/libssl.a \
+    lib/macos/x86/libssl.a \
+    -create -output lib/macos/libssl.a
+
   rm -rf lib/macos/armv8 lib/macos/x86
 }
 
